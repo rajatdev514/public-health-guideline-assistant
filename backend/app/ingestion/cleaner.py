@@ -183,3 +183,16 @@ def clean_documents(documents: list[NormalizedDocument]) -> list[NormalizedDocum
         )
 
     return cleaned_documents
+
+def validate_document(document: NormalizedDocument, minimum_characters: int = 20) -> bool:
+    """
+    Validate that a document contains meaningful text.
+    """
+
+    if not document.text:
+        return False
+
+    if len(document.text.strip()) < minimum_characters:
+        return False
+
+    return True
