@@ -1,0 +1,22 @@
+{
+  "statistics": {
+    "files": 3,
+    "units": 115,
+    "empty_units": 0,
+    "short_units": 3,
+    "total_characters": 382122,
+    "average_characters": 3322.8,
+    "minimum_characters": 26,
+    "maximum_characters": 6539,
+    "sources": {
+      "CDC": 2,
+      "WHO": 113
+    }
+  },
+  "duplicates": [],
+  "metadata_issues": {
+    "missing_source": [],
+    "missing_document_id": [],
+    "missing_page": []
+  }
+}
