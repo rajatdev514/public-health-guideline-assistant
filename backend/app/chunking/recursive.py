@@ -1,20 +1,24 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from app.chunking.schemas import DocumentChunk
+from app.chunking.schemas import ChunkingConfig, DocumentChunk
 from app.chunking.utils import generate_chunk_id
 from app.ingestion.schemas import NormalizedDocument
 
-DEFAULT_CHUNK_SIZE = 1000
-DEFAULT_CHUNK_OVERLAP = 150
 
-def create_recursive_splitter(chunk_size:int = DEFAULT_CHUNK_SIZE, chunk_overlap:int = DEFAULT_CHUNK_OVERLAP) -> RecursiveCharacterTextSplitter:
+def create_recursive_splitter(config: ChunkingConfig) -> RecursiveCharacterTextSplitter:
     """
-    Create the baseline recursive text splitter.
+    Create a recursive text splitter from configuration.
     """
+
+    if config.strategy != "recursive":
+        raise ValueError(
+            "Recursive splitter requires "
+            "strategy='recursive'"
+        )
 
     return RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
+        chunk_size=config.chunk_size,
+        chunk_overlap=config.chunk_overlap,
         separators=[
             "\n\n",
             "\n",
@@ -26,18 +30,14 @@ def create_recursive_splitter(chunk_size:int = DEFAULT_CHUNK_SIZE, chunk_overlap
         ],
     )
 
-def chunk_document_recursive(
-        document: NormalizedDocument,
-        chunk_size: int = DEFAULT_CHUNK_SIZE,
-        chunk_overlap: int = DEFAULT_CHUNK_OVERLAP
-) -> list[DocumentChunk]:
+
+def chunk_document_recursive(document: NormalizedDocument,config: ChunkingConfig) -> list[DocumentChunk]:
     """
-    Split a normalized document unit using recursive chunking.
+    Split a normalized document using recursive chunking.
     """
 
     splitter = create_recursive_splitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
+        config
     )
 
     split_texts = splitter.split_text(
@@ -50,7 +50,7 @@ def chunk_document_recursive(
         chunk_id = generate_chunk_id(
             document_id=document.document_id,
             chunk_index=index,
-            strategy="recursive"
+            strategy=config.strategy,
         )
 
         metadata = dict(document.metadata)
@@ -58,9 +58,9 @@ def chunk_document_recursive(
         metadata.update(
             {
                 "chunk_index": index,
-                "chunking_strategy": "recursive",
-                "chunk_size": chunk_size,
-                "chunk_overlap": chunk_overlap,
+                "chunking_strategy": config.strategy,
+                "chunk_size": config.chunk_size,
+                "chunk_overlap": config.chunk_overlap,
             }
         )
 
